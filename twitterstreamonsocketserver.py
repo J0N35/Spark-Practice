@@ -48,9 +48,9 @@ class Queue:
         """
         return self.list.pop()
 
-    def isEmpty(self):
-        "Returns true if the queue is empty"
-        return len(self.list) == 0
+    def isNotEmpty(self):
+        "Returns true if the queue is not empty"
+        return len(self.list) != 0
 
 
 # In[ ]:
@@ -58,8 +58,11 @@ class Queue:
 class MyTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         # self.request is the TCP socket connected to the client
-        while msg_array.isEmpty is not True:
-            self.data = bytes(msg_array.pop()+'\n', 'utf-8')
+        while msg_array.isNotEmpty:
+            try:
+                self.data = bytes(msg_array.pop()+'\n', 'utf-8')
+            except IndexError:
+                continue
             # just send back the same data, but upper-cased
             self.request.sendall(self.data.upper())
 

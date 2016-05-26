@@ -24,22 +24,26 @@ lines = ssc.socketTextStream('localhost',6666)
 pairs = lines.map(lambda line: (line, 1))
 wordCounts = pairs.reduceByKey(lambda x, y: x + y)
 # Print the first ten elements of each RDD generated in this DStream to the console
-wordCounts.pprint()
+wordCounts.pprint(num = 10) # debug use
+
+# Test begin
+
+# wordsCounts.saveToMongoDB('mongodb://192.168.11.201:32823/country')
+def function(entry):
+    from pymongo import MongoClient
+    
+    client = MongoClient('192.168.11.201', 32773)
+    db = client['twitter']
+    collection = db['country']
+    for item in entry.collect():        
+        collection.find_one_and_update({'country':item[0]},                            {'$inc':{'count':item[1]}}, upsert = True)
+        
+    print('Done Batch')
+        
+wordCounts.foreachRDD(function)
+
+# Test end
 
 ssc.start()             # Start the computation
 ssc.awaitTermination()  # Wait for the computation to terminate
-
-
-# In[ ]:
-
-from pymongo import MongoClient
-
-client = MongoClient('localhost', 32801)
-db = client['twitter']
-collection = db['country']
-country_count = {
-                    'country': country_name,
-                    'count': number
-}
-collection.insert_one(country_count).inserted_id
 
