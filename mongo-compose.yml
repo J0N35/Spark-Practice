@@ -1,0 +1,34 @@
+version: '2'
+services:
+ mongo:
+  image: mongo
+  container_name: mongodb
+  ports:
+   - "27017"
+  volumes:
+   - /home/eehpc/shared/jones/mongo
+ mongo-express:
+  image: mongo-express
+  container_name: mongo-express
+  ports:
+   - "8081"
+  links:
+   - mongo
+  environment:
+   - ME_CONFIG_MONGODB_ENABLE_ADMIN='true'
+   - ME_CONFIG_OPTIONS_EDITORTHEME='zenburn'
+   - ME_CONFIG_MONGODB_ADMINUSERNAME='eehpc'
+   - ME_CONFIG_MONGODB_ADMINPASSWORD='ntueehpc'
+ jupyterspark:
+  image: jupyter/all-spark-notebook
+  user: root
+  ports:
+   - "8888"
+   - "4040"
+   - "6666"
+  volumes:
+   - /home/eehpc/shared/jones:/home/jovyan/work
+  links:
+   - mongo
+  environment:
+   - GRANT_SUDO=yes
